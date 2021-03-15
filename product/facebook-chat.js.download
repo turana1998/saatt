@@ -1,0 +1,751 @@
+if (typeof window.checkJSES == "undefined") {
+  window.checkJSES = 1;
+
+  loadJquerySearch(function (jQuery) {
+    createFacebookChat(jQuery);
+  });
+
+  function loadJquerySearch(callback) {
+    if (typeof jQuery === "undefined") {
+      getScript({
+        source: "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js",
+        callback: () => {
+          jQuery224 = jQuery.noConflict(true);
+          callback(jQuery224);
+        },
+      });
+    } else {
+      callback(jQuery);
+    }
+  }
+
+  function getScript({ source, callback }) {
+    var script = document.createElement("script");
+    var prior = document.getElementsByTagName("script")[0];
+    script.async = 1;
+
+    script.onload = script.onreadystatechange = function (_, isAbort) {
+      if (
+        isAbort ||
+        !script.readyState ||
+        /loaded|complete/.test(script.readyState)
+      ) {
+        script.onload = script.onreadystatechange = null;
+        script = undefined;
+
+        if (!isAbort) {
+          if (callback) callback();
+        }
+      }
+    };
+
+    script.src = source;
+    prior.parentNode.insertBefore(script, prior);
+  }
+}
+
+function createFacebookChat(jquery) {
+  var $ = jquery;
+  $(document).ready(function () {
+    var scripts = document.getElementsByTagName("script");
+    var myScript = {};
+    for (var i = 0; i < scripts.length; i++) {
+      var myScript1 = scripts[i];
+      var src = myScript1.src;
+      if (src.indexOf("facebook-chat.js") > -1) {
+        myScript = myScript1;
+      }
+    }
+    var temp = myScript.src.split("?");
+    var queryString = temp[temp.length - 1];
+    var params = parseQuery(queryString);
+    var jsonVersion = params.v ? params.v : 0;
+
+    $("body").append("<div class='otFacbookChat'></div>");
+    let facebookChatSettings;
+    // Root Link
+    var rootLink = "https://apps.omegatheme.com/facebook-chat/";
+    // Shop
+    var shopFbChat = Shopify.shop;
+    $.ajax({
+      dataType: "json",
+      url: rootLink + "cache/" + shopFbChat + "/data.json?v=" + jsonVersion,
+    }).done(function (res) {
+      $.ajax({
+        dataType: "json",
+        url: rootLink + "front/src/listIcon.json",
+      }).done(function (iconHtml) {
+        facebookChatSettings = res;
+        localStorage.setItem(
+          "facebookChatSettings",
+          JSON.stringify(facebookChatSettings)
+        );
+        let timeToShow = 5000;
+        if (parseInt(facebookChatSettings.show_after) > 5) {
+          timeToShow = parseInt(facebookChatSettings.show_after) * 1000;
+        }
+        setTimeout(
+          () => setTimeCreateChat(facebookChatSettings, jquery, iconHtml),
+          timeToShow
+        );
+      });
+    });
+
+    $(document).on("click", ".ot-fb-logo", function (e) {
+      var object = $(
+        ".fb-customerchat.fb_invisible_flow.fb_iframe_widget iframe"
+      );
+      $("#fb-root").css("display", "block");
+      let window_width = $(window).outerWidth();
+      if (window_width < 800) {
+        if ($(".ot-fb-logo.redirect_icon").length > 0) {
+          let pageInfo = JSON.parse(facebookChatSettings.page_info);
+          let pageId = pageInfo.id;
+          window.open("https://www.messenger.com/t/" + pageId, "_blank");
+        }
+      }
+      if (object.css("max-height") === "0px") {
+        FB.Event.subscribe(
+          "customerchat.show",
+          processShowDialog(object, window_width)
+        );
+      } else {
+        FB.Event.subscribe(
+          "customerchat.hide",
+          processHideDialog(object, window_width)
+        );
+      }
+    });
+
+    $(document).on("click", ".fb_dialog.fb_dialog_mobile iframe", function (e) {
+      let window_width = $(window).outerWidth();
+      if (window_width < 800) {
+        if (facebookChatSettings.chat_type == "1") {
+          let pageInfo = JSON.parse(facebookChatSettings.page_info);
+          let pageId = pageInfo.id;
+          window.open("https://www.messenger.com/t/" + pageId, "_blank");
+        }
+      }
+    });
+  });
+}
+
+function setTimeCreateChat(facebookChatSettings, jquery, iconHtml) {
+  let $ = jquery;
+  // Begin check pages target
+  if (facebookChatSettings.page_target !== "0") {
+    var pathname = window.location.pathname;
+    var page_id = "";
+
+    if (pathname === "/") {
+      page_id = "template-index";
+    } else if (pathname.startsWith("/collections/")) {
+      page_id = "template-collection";
+    } else if (pathname.startsWith("/products/")) {
+      page_id = "template-product";
+    } else if (pathname.startsWith("/cart")) {
+      page_id = "template-cart";
+    } else if (pathname.startsWith("/search")) {
+      page_id = "template-search";
+    } else if (pathname.startsWith("/pages/")) {
+      var page = pathname.replace("/pages/", "");
+      page_id = page;
+    }
+
+    if (facebookChatSettings.page_target === "1") {
+      let listCheck = JSON.parse(facebookChatSettings.specific_pages);
+      if (listCheck.indexOf(page_id) < 0) {
+        console.log("Not specifics page");
+        return;
+      }
+    } else if (facebookChatSettings.page_target === "2") {
+      let listCheck = JSON.parse(facebookChatSettings.exclude_pages);
+      if (listCheck.indexOf(page_id) >= 0) {
+        console.log("excludes page");
+        return;
+      }
+    }
+  }
+  // End check pages target
+
+  var html = facebookChatInit(facebookChatSettings, jquery, iconHtml);
+  $(".otFacbookChat").append(html);
+  var position = facebookChatSettings.position,
+    window_width = $(window).outerWidth(),
+    tab_width = $(".ot-fb-logo").outerWidth(),
+    css_tab =
+      window_width -
+      tab_width -
+      (window_width - tab_width) * (parseInt(position) / 100) +
+      "px";
+  $(".ot-fb-logo.facebook-chat-button").css("right", css_tab);
+  var maxZIndex = findHighestZIndex("div");
+  $(".ot-fb-logo.facebook-chat-button").css("z-index", maxZIndex + 1);
+
+  if (
+    facebookChatSettings.auto_display == "0" &&
+    $(window).outerWidth() > 1024
+  ) {
+    $("#fb-root").css("display", "none");
+  }
+}
+
+function facebookChatInit(facebookChatSettings, jquery, iconHtml) {
+  let $ = jquery;
+  let html = "";
+  let windowWidth = $(window).outerWidth();
+  let currentDomain =
+    window.location.protocol +
+    "//" +
+    window.location.host +
+    "/" +
+    window.location.pathname +
+    window.location.search;
+
+  if (
+    facebookChatSettings.status_connect !== "2" ||
+    facebookChatSettings.app_status === "0"
+  ) {
+    html += "";
+  } else {
+    html +=
+      makeHtml(facebookChatSettings, currentDomain, jquery, iconHtml) +
+      styleHtml(facebookChatSettings, windowWidth, jquery);
+  }
+  return html;
+}
+
+function makeHtml(facebookChatSettings, currentDomain, jquery, iconHtml) {
+  let $ = jquery;
+  var language = facebookChatSettings.language;
+  var theme_color = facebookChatSettings.theme_color;
+  var greeting_message = facebookChatSettings.greeting_message
+    .replace(/&/g, "&amp;")
+    .replace(/>/g, "&gt;")
+    .replace(/</g, "&lt;")
+    .replace(/"/g, "&quot;");
+  var page_info = JSON.parse(facebookChatSettings.page_info);
+
+  var icon_type = facebookChatSettings.icon_type;
+  var icon_text = facebookChatSettings.icon_text;
+  var icon_text_color = facebookChatSettings.icon_text_color;
+  var tab_color = facebookChatSettings.tab_color;
+  var tab_size = facebookChatSettings.tab_size;
+
+  var icon_html = `${iconHtml[icon_type]}<span style='color: ${icon_text_color}; margin-left: 10px;' class='ml-1 mt-1'> ${icon_text}</span>`;
+
+  if (facebookChatSettings.auto_display == "1") {
+    var display = "show";
+  } else {
+    var display = "hide";
+  }
+
+  if (facebookChatSettings.chat_type == "1") {
+    var classAddIcon = "redirect_icon";
+  } else {
+    var classAddIcon = "";
+  }
+  var html = "";
+  if ($("body #fb-root").length === 0) {
+    html += `<div id='fb-root'></div>`;
+  }
+  html += `
+     <script>
+     window.fbAsyncInit = function() {
+        FB.init({ 
+            autoLogAppEvents : true,
+            xfbml            : true,
+            version          : 'v8.0'
+        });
+     };
+     (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/${language}/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+      </script>
+      <div class='fb-customerchat'
+        attribution='setup_tool'
+        fb-xfbml-state='rendered'
+        page_id='${page_info.id}'
+        themeColor='${theme_color}'
+        logged_in_greeting="${greeting_message}"
+        logged_out_greeting="${greeting_message}"
+        rel='${currentDomain}'
+        greeting_dialog_display='${display}'
+      >
+    </div>
+    <div>
+    <div class='ot-fb-logo ${classAddIcon} facebook-chat-button ${tab_size}' style='background-color: ${tab_color}; fill: ${icon_text_color};  z-index: 9999;'>
+        <div style='display: flex; margin: 0'>
+           ${icon_html}
+        </div>
+     </div>
+    </div>
+  </div>
+    `;
+  return html;
+}
+
+function styleHtml(facebookChatSettings, windowWidth, jquery) {
+  let $ = jquery;
+  var position = 100 - parseInt(facebookChatSettings.position);
+  var margin_bottom = parseInt(facebookChatSettings.margin_bottom);
+  var device_target = facebookChatSettings.device_target;
+  // var page_target = facebookChatSettings.page_target;
+  var html = "";
+  var css_append = "";
+
+  if (facebookChatSettings.working_time !== "") {
+    var working_time = JSON.parse(facebookChatSettings.working_time);
+    if (working_time.status == "0") {
+      var timeZone = "";
+      switch (working_time.time_zone) {
+        case "-12": {
+          timeZone = "Pacific/Midway";
+          break;
+        }
+        case "-11": {
+          timeZone = "Pacific/Midway";
+          break;
+        }
+        case "-10": {
+          timeZone = "Pacific/Honolulu";
+          break;
+        }
+        case "-9": {
+          timeZone = "America/Anchorage";
+          break;
+        }
+        case "-8": {
+          timeZone = "America/Los_Angeles";
+          break;
+        }
+        case "-7": {
+          timeZone = "America/Cambridge_Bay";
+          break;
+        }
+        case "-6": {
+          timeZone = "America/Mexico_City";
+          break;
+        }
+        case "-5": {
+          timeZone = "America/Atikokan";
+          break;
+        }
+        case "-4": {
+          timeZone = "Canada/Atlantic";
+          break;
+        }
+        case "-3": {
+          timeZone = "America/Sao_Paulo";
+          break;
+        }
+        case "-2": {
+          timeZone = "America/Noronha";
+          break;
+        }
+        case "-1": {
+          timeZone = "Atlantic/Azores";
+          break;
+        }
+        case "0": {
+          timeZone = "Europe/London";
+          break;
+        }
+        case "1": {
+          timeZone = "Europe/Amsterdam";
+          break;
+        }
+        case "2": {
+          timeZone = "Europe/Bucharest";
+          break;
+        }
+        case "3": {
+          timeZone = "Asia/Baghdad";
+          break;
+        }
+        case "4": {
+          timeZone = "Asia/Muscat";
+          break;
+        }
+        case "5": {
+          timeZone = "Asia/Karachi";
+          break;
+        }
+        case "6": {
+          timeZone = "Asia/Almaty";
+          break;
+        }
+        case "7": {
+          timeZone = "Asia/Bangkok";
+          break;
+        }
+        case "8": {
+          timeZone = "Asia/Hong_Kong";
+          break;
+        }
+        case "9": {
+          timeZone = "Asia/Irkutsk";
+          break;
+        }
+        case "10": {
+          timeZone = "Australia/Brisbane";
+          break;
+        }
+        case "11": {
+          timeZone = "Asia/Vladivostok";
+          break;
+        }
+        case "12": {
+          timeZone = "Pacific/Auckland";
+          break;
+        }
+        default:
+          timeZone = working_time.time_zone;
+          break;
+      }
+
+      var offset = new Date().getTimezoneOffset();
+
+      var currentTime = new Date().toLocaleString("en-US", {
+        timeZone: timeZone,
+      });
+      currentTime = new Date(currentTime);
+
+      var tzYear = currentTime.getFullYear();
+      var tzMonth = currentTime.getMonth();
+      var tzDay = currentTime.getDay();
+      var tzHour = currentTime.getHours();
+      var tzMinute = currentTime.getMinutes();
+
+      //check weekdays
+      if (
+        facebookChatSettings.weekdays !== "" &&
+        facebookChatSettings.weekdays != undefined
+      ) {
+        weekdays = JSON.parse(facebookChatSettings.weekdays);
+        let listWeekdays = [];
+        for (let i = 0; i < weekdays.length; i++) {
+          listWeekdays.push(parseInt(weekdays[i].id));
+        }
+        if (listWeekdays.indexOf(parseInt(tzDay)) === -1) {
+          console.log("Facebook live chat by Omega: Not in the working days");
+          css_append += `.otFacbookChat {
+              display: none;
+           }`;
+        }
+      }
+
+      var currentStamp = new Date(
+        tzYear,
+        tzMonth,
+        tzDay,
+        tzHour,
+        tzMinute
+      ).getTime();
+
+      let timeStart = working_time.start.split(":");
+      var startStamp = new Date(
+        tzYear,
+        tzMonth,
+        tzDay,
+        timeStart[0],
+        timeStart[1]
+      ).getTime();
+
+      let timeEnd = working_time.end.split(":");
+      var endStamp = new Date(
+        tzYear,
+        tzMonth,
+        tzDay,
+        timeEnd[0],
+        timeEnd[1]
+      ).getTime();
+
+      if (startStamp < currentStamp && endStamp > currentStamp) {
+        css_append += "";
+      } else {
+        console.log("Facebook live chat by Omega: Not in the working time");
+        css_append += `.otFacbookChat {
+              display: none;
+           }`;
+      }
+    }
+  }
+
+  if (device_target == "1") {
+    css_append += `
+        @media screen and (max-width:1025px) {
+           .otFacbookChat {
+              display: none;
+           }
+        }
+        `;
+  } else if (device_target == "2") {
+    css_append += `
+            @media screen and (min-width:1023px) {
+              .otFacbookChat {
+                  display: none;
+              }
+            }
+            `;
+  }
+
+  var icon_text = facebookChatSettings.icon_text;
+  {
+    if (icon_text == "") {
+      css_append += `.otFacbookChat .ot-fb-logo.facebook-chat-button span{
+              display: none;
+              }
+              .otFacbookChat .ot-fb-logo.facebook-chat-button{
+                  padding: 15px; 
+              }`;
+    }
+  }
+
+  var chat_type = facebookChatSettings.chat_type;
+  {
+    if (chat_type == "1") {
+      var chat_type_css = `
+              display: none;
+              }`;
+    } else {
+      var chat_type_css = "";
+    }
+  }
+
+  if (facebookChatSettings.custom_css !== "") {
+    var custom_css = JSON.parse(facebookChatSettings.custom_css);
+    {
+      if (custom_css.status == true) {
+        var custom_css_append = custom_css.code;
+      }
+    }
+  }
+
+  let cssDesktop =
+    windowWidth -
+    360 -
+    (windowWidth - 360) * (parseInt(facebookChatSettings.position) / 100) +
+    "px!important;";
+  let cssMbile =
+    windowWidth -
+    255 -
+    (windowWidth - 255) * (parseInt(facebookChatSettings.position) / 100) +
+    "px!important;";
+  let marginBottomIframe;
+  switch (facebookChatSettings.tab_size) {
+    case "small":
+      marginBottomIframe = 50;
+      break;
+    case "medium":
+      marginBottomIframe = 60;
+      break;
+    case "large":
+      marginBottomIframe = 70;
+      break;
+    default:
+      marginBottomIframe = 75;
+  }
+
+  var position = facebookChatSettings.position,
+    window_width = $(window).outerWidth();
+
+  if ($(window).outerWidth() < 1025) {
+    var tab_width = 60;
+  } else {
+    var tab_width = $(".ot-fb-logo").outerWidth();
+  }
+
+  var css_tab =
+    window_width -
+    tab_width -
+    (window_width - tab_width) * (parseInt(position) / 100) +
+    "px";
+  html += `
+      <style>
+      .fb_iframe_widget iframe {
+          right: ${cssDesktop};
+          bottom: ${margin_bottom + marginBottomIframe}px!important;
+      }
+      @media screen and (max-width:1025px) {
+          .fb_iframe_widget iframe {
+          right: 1px!important;
+          bottom: 80px!important;
+          bottom: ${margin_bottom + 50}px!important;
+          width: 255px;
+          ${chat_type_css}
+          }
+
+          .fb_iframe_widget.fb_iframe_widget_fluid iframe.fb_customer_chat_bounce_in_v2_mobile_chat_started {
+          right: 0px!important;
+          }
+      }
+      </style>
+      `;
+  let cssMobile = "";
+  if (facebookChatSettings.chat_type == "1") {
+    cssMobile = `.fb_dialog {
+                  display: none!important;
+                }
+
+                .ot-fb-logo.facebook-chat-button {
+                  display: block!important;
+                }`;
+  } else {
+    cssMobile = `.fb_dialog {
+                  display: block!important;
+                }
+
+                .ot-fb-logo.facebook-chat-button {
+                  display: none!important;
+                }`;
+  }
+  html += `<style type='text/css'>
+               ${css_append}
+  
+              .fb_dialog {
+                 right: ${css_tab}!important;
+              }
+              
+              @media screen and (min-width: 1024px) {
+                .fb_dialog {
+                  display: none!important;
+                }
+              }
+              
+              @media screen and (max-width: 1025px) {
+                ${cssMobile}
+
+                .fb_dialog .fb_dialog_content iframe {
+                  bottom: ${margin_bottom}px!important;
+                  right: ${css_tab}!important;
+                }
+                
+                .fb_dialog .fb_dialog_content div {
+                  display: none!important;
+                }
+
+                .fb_dialog.fb_dialog_mobile  {
+                  bottom: ${margin_bottom}px!important;
+                }
+              }
+
+              #fb-root .fb_iframe_widget iframe {
+                  position: fixed!important;
+              }
+
+              .ot-fb-logo svg {
+                fill: unset;
+              }
+              
+              .ot-fb-logo.facebook-chat-button {
+                 background-color: #ffffff;
+                 fill: #0084FF;
+                 box-shadow: 0 3pt 12pt rgba(0,0,0,.15);
+                 display: table;
+                 float: right;
+                 justify-content: center;
+                 align-items: center;
+                 cursor: pointer;
+                 -webkit-transition: border-color .3s;
+                 transition: border-color .3s;
+                 height: auto;
+                 padding: 10px 15px;
+                 border-radius: 30px;
+                 width: auto;
+                 position: fixed;
+                 bottom: ${margin_bottom}px;
+                 right: ${position}%;
+                 margin-right: 10px;
+             }
+          .ot-fb-logo.facebook-chat-button.medium svg {
+              width: 32px;
+              height: 32px;
+           }
+          
+          .ot-fb-logo.facebook-chat-button.medium span {
+              font-size: 16px;
+              margin-top: 3px;
+          }
+          
+          .ot-fb-logo.facebook-chat-button.small svg {
+              width: 24px;
+              height: 24px;
+          }
+          
+          .ot-fb-logo.facebook-chat-button.small span {
+              font-size: 14px;
+              margin-top: 2px;
+          }
+  
+          .ot-fb-logo.facebook-chat-button.large {
+          }
+          
+          .ot-fb-logo.facebook-chat-button.large svg {
+              width: 40px;
+              height: 40px;
+          }
+          
+          .ot-fb-logo.facebook-chat-button.large span {
+              font-size: 20px;
+              margin-top: 3px;
+          }
+  
+          ${custom_css_append}
+  
+          </style>`;
+
+  return html;
+}
+
+function processShowDialog(object, windowWidth) {
+  if (windowWidth > 1025) {
+    FB.CustomerChat.show();
+    object.css("max-height", "100%");
+    object
+      .removeClass("fb_customer_chat_bounce_out_v2")
+      .addClass("fb_customer_chat_bounce_in_v2");
+  }
+}
+
+function processHideDialog(object, windowWidth) {
+  if (windowWidth > 1025) {
+    FB.CustomerChat.hide();
+    object.css("max-height", "0px");
+    object
+      .removeClass("fb_customer_chat_bounce_in_v2")
+      .addClass("fb_customer_chat_bounce_out_v2");
+  }
+}
+
+function findHighestZIndex(elem) {
+  var elems = document.getElementsByTagName(elem);
+  var highest = 0;
+  for (var i = 0; i < elems.length; i++) {
+    var zindex = document.defaultView
+      .getComputedStyle(elems[i], null)
+      .getPropertyValue("z-index");
+    if (zindex > highest && zindex != "auto") {
+      highest = zindex;
+    }
+  }
+  return highest;
+}
+
+function parseQuery(query) {
+  var Params = new Object();
+  if (!query) return Params; // return empty object
+  var Pairs = query.split(/[;&]/);
+  for (var i = 0; i < Pairs.length; i++) {
+    var KeyVal = Pairs[i].split("=");
+    if (!KeyVal || KeyVal.length != 2) continue;
+    var key = unescape(KeyVal[0]);
+    var val = unescape(KeyVal[1]);
+    val = val.replace(/\+/g, " ");
+    Params[key] = val;
+  }
+  return Params;
+}
