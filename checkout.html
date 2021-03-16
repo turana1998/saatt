@@ -10,8 +10,7 @@
     <title> Rolexx</title>
     <link rel="stylesheet" href="./home/theme.scss.css">
     <link rel="stylesheet" href="./home/home.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-		integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 	
     <script src="./home/home.js"></script>
     <link rel="stylesheet" href="./cdn/theme.scssb158.css">
@@ -356,132 +355,163 @@
    
     <div class="PageContainer">
      
-       <main id="main" role="main" style="display: flex;">
-        <div class="contact_information">
-          <h2>Leo Luxe</h2>
-          
-          <form method="post" action="" id="address_form_new" accept-charset="UTF-8"
-            class="Form Form--spacingTight"><input type="hidden" name="form_type" value="customer_address">
-            <input
-              type="hidden" name="utf8" value="✓">
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[first_name]" value="" placeholder="First name"
-                aria-label="First name" autofocus="">
-              <label class="Form__FloatingLabel">First name</label>
+       <main id="main" class="container" role="main" >
+        <div class="row">
+          <div class=" col-sm-6 col-12">
+            <a style="display: block;
+            text-align: center;
+            padding-top: 50px ;"><h2 style="font-size:2rem">Leo Luxe</h2></a>
+            <div style="text-align: center; padding: 20px;">
+              <a>Cart</a>
+              <a>Information</a>
+              <a>Shipping</a>
+              <a>Payment</a>
             </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[last_name]" value="" placeholder="Last name"
-                aria-label="Last name">
-              <label class="Form__FloatingLabel">Last name</label>
+            <div style="display: flex;
+            justify-content: space-between;">
+              <h2>Contact Information</h2>
+              <a>Already have a account log in</a>
             </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[company]" value="" placeholder="Company"
-                aria-label="Company">
-              <label class="Form__FloatingLabel">Company</label>
-            </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[phone]" value="" placeholder="Phone"
-                aria-label="Phone">
-              <label class="Form__FloatingLabel">Phone</label>
-            </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[address1]" value="" placeholder="Address 1"
-                aria-label="Address 1">
-              <label class="Form__FloatingLabel">Address 1</label>
-            </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[address2]" value="" placeholder="Address 2"
-                aria-label="Address 2">
-              <label class="Form__FloatingLabel">Address 2</label>
-            </div>
-
-            <div class="Form__Item">
-              <input type="text" class="Form__Input" name="address[city]" value="" placeholder="City" aria-label="City">
-              <label class="Form__FloatingLabel">City</label>
-            </div>
-
-            <div class="Form__Group">
+            <form method="post" action="" id="address_form_new" accept-charset="UTF-8"
+              class="Form Form--spacingTight"><input type="hidden" name="form_type" value="customer_address">
+              <input
+                type="hidden" name="utf8" value="✓">
               <div class="Form__Item">
-                <div class="Form__Select Select Select--primary"><svg class="Icon Icon--select-arrow"
-                    role="presentation" viewBox="0 0 19 12">
-                    <polyline fill="none" stroke="currentColor" points="17 2 9.5 10 2 2" fill-rule="evenodd"
-                      stroke-width="2" stroke-linecap="square"></polyline>
-                  </svg><select name="" title="Country">
-                    <option value="az" >Azerbaycan</option>
-                   
-                  </select>
+                <input type="text" class="Form__Input" name="address[first_name]" value="" placeholder="First name"
+                  aria-label="First name" autofocus="">
+                <label class="Form__FloatingLabel">Email</label>
+              </div>
+              <h2>Shipping address</h2>
+               <div class="row">
+                <div class=" col-12 col-sm-6 Form__Item">
+                  <input type="text" class="Form__Input" name="address[last_name]" value="" placeholder="Last name"
+                    aria-label="Last name">
+                  <label class="Form__FloatingLabel">First Name</label>
                 </div>
-              </div>
-
-              <div class="Form__Item">
-                <input type="text" class="Form__Input" name="address[zip]" value="" placeholder="Zip code"
-                  aria-label="Zip code">
-                <label class="Form__FloatingLabel">Zip code</label>
-              </div>
-            </div>
-
-            <div class="Form__Item Form__Select Select Select--primary" style="display: none"><svg
-                class="Icon Icon--select-arrow" role="presentation" viewBox="0 0 19 12">
-                <polyline fill="none" stroke="currentColor" points="17 2 9.5 10 2 2" fill-rule="evenodd"
-                  stroke-width="2" stroke-linecap="square"></polyline>
-              </svg><select name="address[province]" title="Province"></select>
-            </div>
-
-            <div class="Form__Item">
-              <div class="Form__CheckboxWrapper">
-                <input type="checkbox" class="Form__Checkbox" name="address[default]" id="address-new[default]"
-                  value="0">
-                <svg class="Icon Icon--checkmark" role="presentation" viewBox="0 0 24 24">
-                  <polygon fill="currentColor" points="9,20 2,13 5,10 9,14 19,4 22,7 "></polygon>
-                </svg>
-
-                <label for="address-new[default]">Set as default address</label>
-              </div>
-            </div>
-
-            <button class="Form__Submit Button Button--primary Button--full">Continue</button>
-          </form>
-        </div>
-        <form class="contact_information">
-          <div class="Drawer__Main" data-scrollable>
-           
-            <div class="Drawer__Container">
-              <div class="Cart__ItemList">
-                <div class="CartItemWrapper">
-                  <div class="CartItem">
-                    <div class="CartItem__ImageWrapper AspectRatio">
-                      <div class="AspectRatio" style="--aspect-ratio: 1.0">
-                        <img class="CartItem__Image" src="./uploads/saat2.jpg"
-                          alt="Rolex	Cosmograph Daytona Sigma	6263 Latest Watches">
-                      </div>
-                    </div>
     
-                    <div class="CartItem__Info">
-                      <h2 class="CartItem__Title Heading">
-                        <a href="product-detail.html">Rolex Cosmograph
-                          Daytona Sigma 6263</a>
-                      </h2>
+                <div class=" col-12 col-sm-6 Form__Item">
+                  <input type="text" class="Form__Input" name="address[company]" value="" placeholder="Company"
+                    aria-label="Company">
+                  <label class="Form__FloatingLabel">Last Name</label>
+                </div>
     
-                      <div class="CartItem__Meta Heading Text--subdued">
-                        <ul class="CartItem__PropertyList"></ul>
-                        <div class="CartItem__PriceList"><span class="CartItem__Price Price"
-                            data-money-convertible="">£79,995</span></div>
-                      </div>
-                      
+                <div class=" col-12 Form__Item">
+                  <input type="text" class="Form__Input" name="address[phone]" value="" placeholder="Phone"
+                    aria-label="Phone">
+                  <label class="Form__FloatingLabel">Company</label>
+                </div>
+    
+                <div class=" col-12 Form__Item">
+                  <input type="text" class="Form__Input" name="address[address1]" value="" placeholder="Address 1"
+                    aria-label="Address 1">
+                  <label class="Form__FloatingLabel">Address </label>
+                </div>
+                <div class=" col-12 Form__Item">
+                  <input type="text" class="Form__Input" name="address[address1]" value="" placeholder="Address 1"
+                    aria-label="Address 1">
+                  <label class="Form__FloatingLabel">Apartment </label>
+                </div>
+                <div class=" col-12 col-sm-6 Form__Item">
+                  <input type="text" class="Form__Input" name="address[last_name]" value="" placeholder="Last name"
+                    aria-label="Last name">
+                  <label class="Form__FloatingLabel">Postal code</label>
+                </div>
+    
+                <div class=" col-12 col-sm-6 Form__Item">
+                  <input type="text" class="Form__Input" name="address[company]" value="" placeholder="Company"
+                    aria-label="Company">
+                  <label class="Form__FloatingLabel">City</label>
+                </div>
+                <div class="Form__Item">
+                  <input type="text" class="Form__Input" name="address[address2]" value="" placeholder="Address 2"
+                    aria-label="Address 2">
+                  <label class="Form__FloatingLabel">Address 2</label>
+                </div>
+    
+                <div class="Form__Item">
+                  <input type="text" class="Form__Input" name="address[city]" value="" placeholder="City" aria-label="City">
+                  <label class="Form__FloatingLabel">City</label>
+                </div>
+    
+                <div class="Form__Group">
+                  <div class="Form__Item">
+                    <div class="Form__Select Select Select--primary"><svg class="Icon Icon--select-arrow"
+                        role="presentation" viewBox="0 0 19 12">
+                        <polyline fill="none" stroke="currentColor" points="17 2 9.5 10 2 2" fill-rule="evenodd"
+                          stroke-width="2" stroke-linecap="square"></polyline>
+                      </svg><select name="" title="Country">
+                        <option value="az" >Azerbaycan</option>
+                       
+                      </select>
                     </div>
                   </div>
+    
+                  <div class="Form__Item">
+                    <input type="text" class="Form__Input" name="address[zip]" value="" placeholder="Zip code"
+                      aria-label="Zip code">
+                    <label class="Form__FloatingLabel">Zip code</label>
+                  </div>
                 </div>
-              
+    
+                <div class="Form__Item Form__Select Select Select--primary" style="display: none"><svg
+                    class="Icon Icon--select-arrow" role="presentation" viewBox="0 0 19 12">
+                    <polyline fill="none" stroke="currentColor" points="17 2 9.5 10 2 2" fill-rule="evenodd"
+                      stroke-width="2" stroke-linecap="square"></polyline>
+                  </svg><select name="address[province]" title="Province"></select>
+                </div>
+    
+                <div class="Form__Item">
+                  <div class="Form__CheckboxWrapper">
+                    <input type="checkbox" class="Form__Checkbox" name="address[default]" id="address-new[default]"
+                      value="0">
+                    <svg class="Icon Icon--checkmark" role="presentation" viewBox="0 0 24 24">
+                      <polygon fill="currentColor" points="9,20 2,13 5,10 9,14 19,4 22,7 "></polygon>
+                    </svg>
+    
+                    <label for="address-new[default]">Set as default address</label>
+                  </div>
+                </div>
+    
+               </div>
+              <button class="Form__Submit Button Button--primary Button--full">Continue</button>
+            </form>
+          </div>
+          <form class=" col-12 col-sm-6">
+            <div class="Drawer__Main" data-scrollable>
+             
+              <div class="Drawer__Container">
+                <div class="Cart__ItemList">
+                  <div class="CartItemWrapper">
+                    <div class="CartItem">
+                      <div class="CartItem__ImageWrapper AspectRatio">
+                        <div class="AspectRatio" style="--aspect-ratio: 1.0">
+                          <img class="CartItem__Image" src="./uploads/saat2.jpg"
+                            alt="Rolex	Cosmograph Daytona Sigma	6263 Latest Watches">
+                        </div>
+                      </div>
+      
+                      <div class="CartItem__Info">
+                        <h2 class="CartItem__Title Heading">
+                          <a href="product-detail.html">Rolex Cosmograph
+                            Daytona Sigma 6263</a>
+                        </h2>
+      
+                        <div class="CartItem__Meta Heading Text--subdued">
+                          <ul class="CartItem__PropertyList"></ul>
+                          <div class="CartItem__PriceList"><span class="CartItem__Price Price"
+                              data-money-convertible="">£79,995</span></div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                
+                </div>
               </div>
             </div>
-          </div>
-          
-        </form>
+            
+          </form>
+        </div>
        </main>
 
         
@@ -489,5 +519,7 @@
     </div>
 </body>
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js" integrity="sha384-KsvD1yqQ1/1+IA7gi3P0tyJcT3vR+NdBTt13hSJ2lnve8agRGXTTyNaBYmCR/Nwi" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js" integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG" crossorigin="anonymous"></script>
 </html>
